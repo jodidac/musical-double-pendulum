@@ -1,3 +1,4 @@
+
   name: Build Android APK
 
   on:
@@ -15,10 +16,8 @@
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
+        with:                                                        node-version: '20'
+          cache: 'npm'                                     
       - name: Install dependencies
         run: npm ci
 
@@ -39,15 +38,32 @@
       - name: Copy web assets to Android
         run: npx cap copy android
 
-      - name: Build Android APK
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+                                                                 - name: Debug Android project
         run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          echo "=== Checking Android project structure ==="
+          ls -la android/
+          echo "=== Checking gradlew permissions ==="
+          ls -la android/gradlew
+          echo "=== Checking Android app directory ==="
+          ls -la android/app/                              
+      - name: Build Android APK (with verbose output)
+        run: |                                                       cd android
+          ./gradlew assembleDebug --stacktrace --info --no-daemon
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
+      - name: Upload APK                                           if: success()
+        uses: actions/upload-artifact@v4                           with:
           name: musical-pendulum-apk
           path: android/app/build/outputs/apk/debug/*.apk
           retention-days: 30
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            android/build/reports/
+            android/app/build/reports/
+          retention-days: 5
