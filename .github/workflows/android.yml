@@ -25,8 +25,7 @@
       - name: Build web app
         run: |
           mkdir -p dist
-          cp musical_double_pendulum_improved.html
-  dist/index.html
+          cp musical_double_pendulum_improved.html dist/index.html
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -50,5 +49,4 @@
         uses: actions/upload-artifact@v3
         with:
           name: musical-pendulum-apk
-          path:
-  android/app/build/outputs/apk/debug/*.apk
+          path: android/app/build/outputs/apk/debug/*.apk
